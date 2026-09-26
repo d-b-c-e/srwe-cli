@@ -1,3 +1,58 @@
+# srwe-cli
+
+A headless, command-line fork of [Simple Runtime Window Editor](https://github.com/dtgDTGdtg/SRWE)
+for Windows. It can wait for a process, inspect its main window, remove borders, and place its
+window or client area at an exact pixel rectangle. It also reads existing SRWE XML profiles.
+The original WinForms source remains in `SRWE/` for provenance; no GUI is needed to run the CLI.
+
+## Getting started
+
+Requires the .NET 10 SDK on Windows to build:
+
+```powershell
+dotnet build SRWE.Cli/SRWE.Cli.csproj -c Release
+dotnet run --project SRWE.Cli/SRWE.Cli.csproj -- help
+dotnet run --project SRWE.Cli.SmokeTests/SRWE.Cli.SmokeTests.csproj
+```
+
+To produce a standalone executable for machines without the .NET runtime:
+
+```powershell
+dotnet publish SRWE.Cli/SRWE.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+```
+
+Examples (use an actual game PID or process name; the game must be in windowed mode):
+
+```powershell
+srwe-cli list
+srwe-cli inspect --name eurotrucks2 --json
+srwe-cli apply --name eurotrucks2 --wait 60 --profile "C:\path\to\ETS2-3x1440p-no-surround.xml" --json
+srwe-cli apply --pid 1234 --x -2560 --y 0 --width 7680 --height 1440 --borderless --client-area --json
+```
+
+`--client-area` makes the requested rectangle the rendered client area, compensating for any
+remaining window frame. `--profile` instead applies the saved SRWE outer-window rectangle and
+style values. Add `--exit-size-move` only for games that require `WM_EXITSIZEMOVE`; it can cause
+stretching in others. The command reports the resulting outer and client rectangles, and exits
+nonzero if the requested geometry did not take effect. This tool does not change display topology,
+launch games, or guarantee that a game rebuilds its rendering backbuffer after a window resize.
+
+## Project structure
+
+- `SRWE.Cli/` — .NET 10 Windows command-line implementation.
+- `SRWE.Cli.SmokeTests/` — non-interactive Win32 placement and XML profile checks.
+- `SRWE/` — original WinForms application, retained for reference and attribution.
+- `Profiles/` — upstream example XML profiles.
+
+## License and upstream
+
+MIT License; see [LICENSE](LICENSE). Original SRWE copyright 2016 dtgDTGdtg. This fork retains
+the original Git history and license. The CLI is not an official upstream release.
+
+## Original SRWE guide
+
+The following is the upstream GUI documentation, retained for reference.
+
 # SRWE
 Simple Runtime Window Editor (SRWE) - a program that allows you to pick a running
 application and manipulate size, position, styles of its main/child windows.
